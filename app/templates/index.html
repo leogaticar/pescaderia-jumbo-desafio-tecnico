@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Productos de Pescadería Jumbo</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 20px;
+                background-color: #f5f5f5;
+            }
+
+            h1 {
+                color: #003366;
+                text-align: center;
+                margin-bottom: 30px;
+            }
+
+            .products-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 20px;
+                padding: 20px;
+            }
+
+            .product-card {
+                background: white;
+                border-radius: 8px;
+                padding: 15px;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+                transition: transform 0.2s;
+            }
+
+            .product-card:hover {
+                transform: translateY(-5px);
+            }
+
+            .product-image {
+                width: 100%;
+                height: 200px;
+                object-fit: contain;
+                border-radius: 4px;
+                margin-bottom: 10px;
+            }
+
+            .product-name {
+                font-size: 1.1em;
+                font-weight: bold;
+                margin: 10px 0;
+                color: #333;
+            }
+
+            .product-brand {
+                color: #666;
+                font-size: 0.9em;
+                margin-bottom: 5px;
+            }
+
+            .product-price {
+                font-size: 1.2em;
+                color: #e4022d;
+                font-weight: bold;
+                margin-top: 10px;
+            }
+
+            .no-products {
+                text-align: center;
+                color: #666;
+                font-size: 1.2em;
+                padding: 50px;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Productos de Pescadería Jumbo</h1>
+
+        {% if products %}
+        <div class="products-grid">
+            {% for product in products %}
+            <div class="product-card">
+                {% if product.image_url %}
+                <img
+                    src="{{ product.image_url }}"
+                    alt="{{ product.name }}"
+                    class="product-image"
+                />
+                {% endif %}
+                <div class="product-brand">{{ product.brand }}</div>
+                <div class="product-name">{{ product.name }}</div>
+                <div class="product-price">{{ product.price }}</div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="no-products">
+            No hay productos disponibles en este momento.
+        </div>
+        {% endif %}
+    </body>
+</html>
