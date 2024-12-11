@@ -3,7 +3,11 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Productos de Pescadería Jumbo</title>
+        <title>Sistema de gestión de inventario MINISHOP</title>
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+        />
         <style>
             body {
                 font-family: Arial, sans-serif;
@@ -12,10 +16,34 @@
                 background-color: #f5f5f5;
             }
 
+            .container {
+                display: flex;
+                gap: 20px;
+                max-width: 1400px;
+                margin: 0 auto;
+            }
+
+            .products-section {
+                flex: 3;
+            }
+
+            .cart-section {
+                flex: 1;
+                background: white;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+                height: fit-content;
+                position: sticky;
+                top: 20px;
+                min-width: 300px;
+            }
+
             h1 {
                 color: #003366;
                 text-align: center;
                 margin-bottom: 30px;
+                font-size: 2em;
             }
 
             .products-grid {
@@ -63,40 +91,393 @@
                 color: #e4022d;
                 font-weight: bold;
                 margin-top: 10px;
+                margin-bottom: 10px;
             }
 
-            .no-products {
-                text-align: center;
-                color: #666;
+            .quantity-control {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                margin-bottom: 10px;
+                justify-content: center;
+            }
+
+            .quantity-btn {
+                background: #f0f0f0;
+                border: none;
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
                 font-size: 1.2em;
-                padding: 50px;
+                transition: background-color 0.2s;
+            }
+
+            .quantity-btn:hover {
+                background: #e0e0e0;
+            }
+
+            .quantity-input {
+                width: 50px;
+                text-align: center;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                padding: 5px;
+                font-size: 1em;
+            }
+
+            .add-to-cart {
+                background-color: #4caf50;
+                color: white;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 4px;
+                cursor: pointer;
+                width: 100%;
+                font-size: 1em;
+                transition: background-color 0.3s;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+            }
+
+            .add-to-cart:hover {
+                background-color: #45a049;
+            }
+
+            .cart-title {
+                color: #003366;
+                margin-bottom: 15px;
+                font-size: 1.2em;
+                border-bottom: 2px solid #003366;
+                padding-bottom: 10px;
+            }
+
+            .cart-items {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+            }
+
+            .cart-item {
+                padding: 10px 0;
+                border-bottom: 1px solid #eee;
+            }
+
+            .cart-item-details {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 8px;
+            }
+
+            .cart-item-name {
+                flex-grow: 1;
+                margin-right: 10px;
+            }
+
+            .cart-item-controls {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .cart-quantity-btn {
+                background: none;
+                border: none;
+                cursor: pointer;
+                padding: 4px;
+                color: #666;
+                transition: color 0.2s;
+            }
+
+            .cart-quantity-btn:hover {
+                color: #333;
+            }
+
+            .cart-quantity {
+                min-width: 20px;
+                text-align: center;
+            }
+
+            .no-items {
+                color: #666;
+                font-style: italic;
+                text-align: center;
+                padding: 20px 0;
+            }
+
+            .cart-item-subtotal {
+                color: #e4022d;
+                font-weight: bold;
+                font-size: 0.9em;
+                margin-top: 5px;
+            }
+
+            .cart-summary {
+                margin-top: 20px;
+                padding-top: 15px;
+                border-top: 2px solid #003366;
+            }
+
+            .cart-total {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                font-size: 1.2em;
+                font-weight: bold;
+                color: #003366;
+                margin-bottom: 15px;
+            }
+
+            .clear-cart {
+                background-color: #dc3545;
+                color: white;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 4px;
+                cursor: pointer;
+                width: 100%;
+                font-size: 1em;
+                transition: background-color 0.3s;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+            }
+
+            .clear-cart:hover {
+                background-color: #c82333;
+            }
+
+            .cart-actions {
+                margin-top: 15px;
+            }
+
+            @media (max-width: 768px) {
+                .container {
+                    flex-direction: column;
+                }
+
+                .cart-section {
+                    position: static;
+                    margin-top: 20px;
+                }
             }
         </style>
     </head>
     <body>
-        <h1>Productos de Pescadería Jumbo</h1>
+        <h1>Sistema de gestión de inventario MINISHOP</h1>
 
-        {% if products %}
-        <div class="products-grid">
-            {% for product in products %}
-            <div class="product-card">
-                {% if product.image_url %}
-                <img
-                    src="{{ product.image_url }}"
-                    alt="{{ product.name }}"
-                    class="product-image"
-                />
+        <div class="container">
+            <div class="products-section">
+                {% if products %}
+                <div class="products-grid">
+                    {% for product in products %}
+                    <div class="product-card">
+                        {% if product.image_url %}
+                        <img
+                            src="{{ product.image_url }}"
+                            alt="{{ product.name }}"
+                            class="product-image"
+                        />
+                        {% endif %}
+                        <div class="product-brand">{{ product.brand }}</div>
+                        <div class="product-name">{{ product.name }}</div>
+                        <div class="product-price">{{ product.price }}</div>
+                        <div class="quantity-control">
+                            <button
+                                class="quantity-btn"
+                                onclick="decrementQuantity('{{ product.name }}')"
+                            >
+                                -
+                            </button>
+                            <input
+                                type="number"
+                                min="1"
+                                value="1"
+                                class="quantity-input"
+                                id="quantity-{{ product.name | replace(' ', '-') }}"
+                            />
+                            <button
+                                class="quantity-btn"
+                                onclick="incrementQuantity('{{ product.name }}')"
+                            >
+                                +
+                            </button>
+                        </div>
+                        <button
+                            class="add-to-cart"
+                            onclick="addToCart('{{ product.name }}', '{{ product.price }}')"
+                        >
+                            <i class="fas fa-shopping-cart"></i>
+                            Agregar al carrito
+                        </button>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="no-products">
+                    No hay productos disponibles en este momento.
+                </div>
                 {% endif %}
-                <div class="product-brand">{{ product.brand }}</div>
-                <div class="product-name">{{ product.name }}</div>
-                <div class="product-price">{{ product.price }}</div>
             </div>
-            {% endfor %}
+
+            <div class="cart-section">
+                <h2 class="cart-title">Carrito de Compras</h2>
+                <div id="cart-items" class="cart-items">
+                    <div class="no-items">No hay productos añadidos</div>
+                </div>
+                <div
+                    id="cart-summary"
+                    class="cart-summary"
+                    style="display: none"
+                >
+                    <div class="cart-total">
+                        <span>Total:</span>
+                        <span id="cart-total-amount">$0</span>
+                    </div>
+                    <div class="cart-actions">
+                        <button class="clear-cart" onclick="clearCart()">
+                            <i class="fas fa-trash"></i>
+                            Vaciar carrito
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
-        {% else %}
-        <div class="no-products">
-            No hay productos disponibles en este momento.
-        </div>
-        {% endif %}
+
+        <script>
+            const cart = {};
+
+            function getQuantityInput(productName) {
+                return document.getElementById(
+                    `quantity-${productName.replace(/ /g, "-")}`
+                );
+            }
+
+            function incrementQuantity(productName) {
+                const input = getQuantityInput(productName);
+                input.value = parseInt(input.value) + 1;
+            }
+
+            function decrementQuantity(productName) {
+                const input = getQuantityInput(productName);
+                if (parseInt(input.value) > 1) {
+                    input.value = parseInt(input.value) - 1;
+                }
+            }
+
+            function addToCart(productName, price) {
+                const quantityInput = getQuantityInput(productName);
+                const quantity = parseInt(quantityInput.value);
+
+                if (cart[productName]) {
+                    cart[productName].quantity += quantity;
+                } else {
+                    cart[productName] = {
+                        quantity: quantity,
+                        price: price,
+                    };
+                }
+
+                // Resetear la cantidad a 1 después de agregar al carrito
+                quantityInput.value = 1;
+                updateCartDisplay();
+            }
+
+            function updateCartQuantity(productName, change) {
+                if (cart[productName]) {
+                    cart[productName].quantity += change;
+                    if (cart[productName].quantity <= 0) {
+                        delete cart[productName];
+                    }
+                    updateCartDisplay();
+                }
+            }
+
+            function formatPrice(price) {
+                // Convertir string "$1.990" a número y luego formatear
+                return (
+                    "$" +
+                    parseInt(price.replace(/[$.]/g, "")).toLocaleString("es-CL")
+                );
+            }
+
+            function calculateSubtotal(price, quantity) {
+                // Convertir precio de string "$1.990" a número
+                const numericPrice = parseInt(price.replace(/[$.]/g, ""));
+                return numericPrice * quantity;
+            }
+
+            function clearCart() {
+                if (confirm("¿Estás seguro de que deseas vaciar el carrito?")) {
+                    Object.keys(cart).forEach((productName) => {
+                        const quantityInput = getQuantityInput(productName);
+                        if (quantityInput) {
+                            quantityInput.value = 1;
+                        }
+                    });
+                    Object.keys(cart).forEach((key) => delete cart[key]);
+                    updateCartDisplay();
+                }
+            }
+
+            function updateCartDisplay() {
+                const cartElement = document.getElementById("cart-items");
+                const cartSummary = document.getElementById("cart-summary");
+
+                if (Object.keys(cart).length === 0) {
+                    cartElement.innerHTML =
+                        '<div class="no-items">No hay productos añadidos</div>';
+                    cartSummary.style.display = "none";
+                    return;
+                }
+
+                let cartHTML = "";
+                let total = 0;
+
+                for (const [productName, details] of Object.entries(cart)) {
+                    const subtotal = calculateSubtotal(
+                        details.price,
+                        details.quantity
+                    );
+                    total += subtotal;
+
+                    cartHTML += `
+                        <div class="cart-item">
+                            <div class="cart-item-details">
+                                <span class="cart-item-name">${productName}</span>
+                                <div class="cart-item-controls">
+                                    <button class="cart-quantity-btn" onclick="updateCartQuantity('${productName}', -1)">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                    <span class="cart-quantity">${
+                                        details.quantity
+                                    }</span>
+                                    <button class="cart-quantity-btn" onclick="updateCartQuantity('${productName}', 1)">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="cart-item-subtotal">
+                                ${details.quantity} x ${
+                        details.price
+                    } = ${formatPrice(subtotal.toString())}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                cartElement.innerHTML = cartHTML;
+                cartSummary.style.display = "block";
+                document.getElementById("cart-total-amount").textContent =
+                    formatPrice(total.toString());
+            }
+        </script>
     </body>
 </html>
