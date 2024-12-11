@@ -90,8 +90,7 @@
                 font-size: 1.2em;
                 color: #e4022d;
                 font-weight: bold;
-                margin-top: 10px;
-                margin-bottom: 10px;
+                margin: 10px 0;
             }
 
             .quantity-control {
@@ -204,13 +203,6 @@
                 text-align: center;
             }
 
-            .no-items {
-                color: #666;
-                font-style: italic;
-                text-align: center;
-                padding: 20px 0;
-            }
-
             .cart-item-subtotal {
                 color: #e4022d;
                 font-weight: bold;
@@ -258,11 +250,17 @@
                 margin-top: 15px;
             }
 
+            .no-items {
+                color: #666;
+                font-style: italic;
+                text-align: center;
+                padding: 20px 0;
+            }
+
             @media (max-width: 768px) {
                 .container {
                     flex-direction: column;
                 }
-
                 .cart-section {
                     position: static;
                     margin-top: 20px;
@@ -321,7 +319,7 @@
                     {% endfor %}
                 </div>
                 {% else %}
-                <div class="no-products">
+                <div class="no-items">
                     No hay productos disponibles en este momento.
                 </div>
                 {% endif %}
@@ -372,6 +370,30 @@
                 }
             }
 
+            function formatPrice(price) {
+                return (
+                    "$" +
+                    parseInt(price.replace(/[$.]/g, "")).toLocaleString("es-CL")
+                );
+            }
+
+            function calculateSubtotal(price, quantity) {
+                return parseInt(price.replace(/[$.]/g, "")) * quantity;
+            }
+
+            function clearCart() {
+                if (confirm("¿Estás seguro de que deseas vaciar el carrito?")) {
+                    Object.keys(cart).forEach((productName) => {
+                        const quantityInput = getQuantityInput(productName);
+                        if (quantityInput) {
+                            quantityInput.value = 1;
+                        }
+                    });
+                    Object.keys(cart).forEach((key) => delete cart[key]);
+                    updateCartDisplay();
+                }
+            }
+
             function addToCart(productName, price) {
                 const quantityInput = getQuantityInput(productName);
                 const quantity = parseInt(quantityInput.value);
@@ -385,7 +407,6 @@
                     };
                 }
 
-                // Resetear la cantidad a 1 después de agregar al carrito
                 quantityInput.value = 1;
                 updateCartDisplay();
             }
@@ -396,33 +417,6 @@
                     if (cart[productName].quantity <= 0) {
                         delete cart[productName];
                     }
-                    updateCartDisplay();
-                }
-            }
-
-            function formatPrice(price) {
-                // Convertir string "$1.990" a número y luego formatear
-                return (
-                    "$" +
-                    parseInt(price.replace(/[$.]/g, "")).toLocaleString("es-CL")
-                );
-            }
-
-            function calculateSubtotal(price, quantity) {
-                // Convertir precio de string "$1.990" a número
-                const numericPrice = parseInt(price.replace(/[$.]/g, ""));
-                return numericPrice * quantity;
-            }
-
-            function clearCart() {
-                if (confirm("¿Estás seguro de que deseas vaciar el carrito?")) {
-                    Object.keys(cart).forEach((productName) => {
-                        const quantityInput = getQuantityInput(productName);
-                        if (quantityInput) {
-                            quantityInput.value = 1;
-                        }
-                    });
-                    Object.keys(cart).forEach((key) => delete cart[key]);
                     updateCartDisplay();
                 }
             }
